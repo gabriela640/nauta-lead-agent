@@ -173,7 +173,7 @@ async def receive_lead(request: Request):
         lead_id = database.save_lead(lead, result, data)
         now_str = datetime.utcnow().isoformat()
 
-        if result.classification == "High ICP" and lead.email and SENDER_EMAIL:
+        if result.classification in ("High ICP", "Potential ICP") and lead.email and SENDER_EMAIL:
             email_sent = send_email(
                 to=lead.email,
                 subject=result.email_subject,
@@ -190,8 +190,6 @@ async def receive_lead(request: Request):
             )
             if email_sent:
                 database.update_status(lead_id, "emailed", email_sent_at=now_str)
-        elif result.classification == "Potential ICP":
-            database.update_status(lead_id, "pending_review")
         else:
             database.update_status(lead_id, "not_icp")
 
