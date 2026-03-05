@@ -9,7 +9,8 @@ from datetime import datetime
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse
 
 import database
 import scheduler
@@ -55,6 +56,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="NAUTA Lead Qualification Agent", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ─── Webhook signature verification ────────────────────────────────────────────
@@ -288,6 +296,14 @@ async def review_queue(
 ):
     leads = database.get_leads(status="pending_review", limit=limit, offset=offset)
     return {"leads": leads, "count": len(leads)}
+
+
+# ─── Dashboard ───────────────────────────────────────────────────────────────────
+
+@app.get("/", response_class=HTMLResponse)
+async def dashboard():
+    with open("dashboard.html") as f:
+        return f.read()
 
 
 # ─── Health ──────────────────────────────────────────────────────────────────────
