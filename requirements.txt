@@ -1,0 +1,8 @@
+anthropic
+fastapi
+uvicorn[standard]
+google-auth-oauthlib
+google-api-python-client
+python-dotenv
+pydantic
+apscheduler
